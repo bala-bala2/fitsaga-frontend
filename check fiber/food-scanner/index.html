@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Diet Planner | AI Powered Nutrition</title>
+    <!-- Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- CSS Reset & Variables --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        :root {
+            --primary: #a29bfe;
+            --primary-dark: #6c5ce7;
+            --secondary: #00cec9;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --text-light: #dfe6e9;
+            --success: #00b894;
+            --danger: #ff7675;
+            --warning: #fdcb6e;
+            --glass-bg: rgba(20, 20, 35, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-attachment: fixed;
+        }
+
+        /* --- Header --- */
+        header {
+            padding: 1.5rem 5%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header nav a {
+            color: var(--light);
+            text-decoration: none;
+            margin-left: 2rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        header nav a:hover {
+            color: var(--primary);
+        }
+
+        /* --- Main Layout --- */
+        main {
+            padding: 3rem 5%;
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        @media (min-width: 1024px) {
+            main {
+                grid-template-columns: 350px 1fr;
+            }
+        }
+
+        /* --- Glassmorphism Cards --- */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .card-header {
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: var(--primary);
+        }
+
+        /* --- Forms --- */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 10px;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 10px rgba(108, 92, 231, 0.2);
+        }
+
+        .form-control option {
+            background: var(--dark);
+            color: #fff;
+        }
+
+        select.form-control {
+            cursor: pointer;
+            appearance: none;
+        }
+
+        /* --- Buttons --- */
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* --- Results Dashboard --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .color-fire { color: var(--danger); }
+        .color-protein { color: var(--primary); }
+        .color-carbs { color: var(--warning); }
+        .color-fat { color: var(--success); }
+        .color-water { color: var(--secondary); }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- Diet Plan Output & API Section --- */
+        .content-section {
+            margin-top: 2rem;
+        }
+
+        .diet-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .diet-list li {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .textarea-custom {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .api-result {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .api-result.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .nutrition-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .nutrition-table th, .nutrition-table td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* --- Loading Spinner --- */
+        .spinner-wrapper {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Camera Modal --- */
+        .camera-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+            padding: 20px;
+        }
+
+        .camera-modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .camera-content {
+            background: var(--dark);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+        }
+
+        .close-camera {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: var(--light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-camera:hover {
+            color: var(--danger);
+        }
+
+        #videoElement {
+            width: 100%;
+            border-radius: 10px;
+            background: #000;
+            transform: scaleX(-1);
+            margin-bottom: 1rem;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+        }
+
+        .camera-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        #captureBtn {
+            flex: 1;
+        }
+        
+        #camStatus {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--secondary);
+        }
+
+        /* --- Error Message --- */
+        .error-msg {
+            background: rgba(255, 118, 117, 0.1);
+            color: var(--danger);
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 118, 117, 0.3);
+            margin-top: 1rem;
+            display: none;
+        }
+
+        /* Responsive Utilities */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 480px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            header nav {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 1rem;
+            }
+            header nav a {
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1><i class="fa-solid fa-leaf"></i> FitSaga Diet Planner</h1>
+        <nav>
+            <a href="#planner">Planner</a>
+            <a href="#analyzer">Meal Analyzer</a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Sidebar Form: User Input -->
+        <aside class="glass-card">
+            <h2 class="card-header"><i class="fa-solid fa-calculator"></i> Your Stats</h2>
+            <form id="dietForm">
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select id="gender" class="form-control" required>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Age (years)</label>
+                    <input type="number" id="age" class="form-control" placeholder="e.g. 25" min="15" max="100" required>
+                </div>
+                <div class="form-group">
+                    <label>Height (cm)</label>
+                    <input type="number" id="height" class="form-control" placeholder="e.g. 175" min="100" max="250" required>
+                </div>
+                <div class="form-group">
+                    <label>Weight (kg)</label>
+                    <input type="number" id="weight" class="form-control" placeholder="e.g. 70" min="30" max="250" required>
+                </div>
+                <div class="form-group">
+                    <label>Activity Level</label>
+                    <select id="activity" class="form-control" required>
+                        <option value="1.2">Sedentary (Little or no exercise)</option>
+                        <option value="1.55">Moderate (Exercise 3-5 days/wk)</option>
+                        <option value="1.725">Active (Exercise 6-7 days/wk)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Goal</label>
+                    <select id="goal" class="form-control" required>
+                        <option value="lose">Weight Loss</option>
+                        <option value="maintain">Maintenance</option>
+                        <option value="gain">Weight Gain</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Diet Preference</label>
+                    <select id="preference" class="form-control" required>
+                        <option value="vegetarian">Vegetarian</option>
+                        <option value="non-vegetarian">Non-Vegetarian</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-bolt"></i> Generate Plan
+                </button>
+                <div style="margin-top: 1rem;">
+                    <button type="button" id="openCameraBtn" class="btn btn-secondary">
+                        <i class="fa-solid fa-camera"></i> Scan Food (AI)
+                    </button>
+                </div>
+            </form>
+        </aside>
+
+        <!-- Main Content Area: Results and API Integration -->
+        <div class="results-area">
+            
+            <!-- Default Placeholder if no results -->
+            <div id="welcomeState" class="glass-card" style="text-align: center; padding: 4rem 2rem;">
+                <i class="fa-solid fa-laptop-medical" style="font-size: 4rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                <h2>Welcome to Your Smart Diet Planner</h2>
+                <p style="color: var(--text-light); margin-top: 1rem;">Enter your details to calculate your unique daily caloric requirements and macroscopic nutrient values automatically.</p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsState" style="display: none;">
+                <!-- Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <i class="fa-solid fa-fire stat-icon color-fire"></i>
+                        <div class="stat-value" id="resCal">2,100</div>
+                        <div class="stat-label">Daily Calories</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-dna stat-icon color-protein"></i>
+                        <div class="stat-value"><span id="resPro">150</span>g</div>
+                        <div class="stat-label">Protein</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-wheat-awn stat-icon color-carbs"></i>
+                        <div class="stat-value"><span id="resCarb">200</span>g</div>
+                        <div class="stat-label">Carbs</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-droplet stat-icon color-fat"></i>
+                        <div class="stat-value"><span id="resFat">70</span>g</div>
+                        <div class="stat-label">Fat</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-glass-water stat-icon color-water"></i>
+                        <div class="stat-value"><span id="resWater">2.5</span>L</div>
+                        <div class="stat-label">Water Intake</div>
+                    </div>
+                </div>
+
+                <!-- Suggested Diet Plan -->
+                <div class="glass-card content-section">
+                    <h2 class="card-header"><i class="fa-solid fa-list-check"></i> Suggested Diet Plan</h2>
+                    <ul class="diet-list" id="dietSuggestionList">
+                        <!-- Populated dynamically via JS -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Edamam Nutrition Analyzer Section -->
+            <div class="glass-card content-section" id="analyzer">
+                <h2 class="card-header"><i class="fa-solid fa-magnifying-glass-chart"></i> Meal Nutrition Analyzer (Edamam API)</h2>
+                <p style="color: var(--text-light); margin-bottom: 1rem; font-size: 0.9rem;">
+                    Enter a meal (e.g., "1 cup of rice, 2 whole eggs, 1 apple") to get real-time macro analysis directly from the Edamam Nutrition Analysis API.
+                </p>
+
+                <div class="form-group">
+                    <textarea id="mealInput" class="form-control textarea-custom" placeholder="Type ingredients separated by commas or new lines..."></textarea>
+                </div>
+                <button id="analyzeBtn" class="btn btn-primary" style="width: auto;">
+                    <i class="fa-solid fa-satellite-dish"></i> Analyze Meal
+                </button>
+
+                <div class="spinner-wrapper" id="apiSpinner">
+                    <div class="spinner"></div>
+                </div>
+
+                <div class="error-msg" id="apiError"></div>
+
+                <div class="api-result" id="apiResult">
+                    <h3 style="margin-bottom: 1rem; color: var(--secondary);">Nutrition Facts</h3>
+                    <div class="dashboard-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1rem;">
+                        <div class="stat-card" style="padding: 1rem;">
+                            <div class="stat-value" id="apiCal" style="font-size: 1.5rem;">0</div>
+                            <div class="stat-label" style="font-size: 0.7rem;">KCAL</div>
+                        </div>
+                        <div class="stat-card" style="padding: 1rem;">
+                            <div class="stat-value" style="font-size: 1.5rem;"><span id="apiPro">0</span>g</div>
+                            <div class="stat-label" style="font-size: 0.7rem;">PRO</div>
+                        </div>
+                        <div class="stat-card" style="padding: 1rem;">
+                            <div class="stat-value" style="font-size: 1.5rem;"><span id="apiCarb">0</span>g</div>
+                            <div class="stat-label" style="font-size: 0.7rem;">CARB</div>
+                        </div>
+                        <div class="stat-card" style="padding: 1rem;">
+                            <div class="stat-value" style="font-size: 1.5rem;"><span id="apiFat">0</span>g</div>
+                            <div class="stat-label" style="font-size: 0.7rem;">FAT</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Camera Modal -->
+    <div id="cameraModal" class="camera-modal">
+        <div class="camera-content">
+            <i class="fa-solid fa-xmark close-camera" id="closeCameraBtn"></i>
+            <h2 style="margin-bottom: 1rem; color: var(--primary);">AI Food Scanner</h2>
+            <video id="videoElement" autoplay playsinline></video>
+            <canvas id="canvasElement" style="display: none;"></canvas>
+            <div class="camera-controls">
+                <button type="button" id="captureBtn" class="btn btn-primary">
+                    <i class="fa-solid fa-crosshairs"></i> Identify Food
+                </button>
+            </div>
+            <div id="camStatus"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. Nutrition API Configuration ---
+        // Note: Replace these placeholders with actual credentials from scaling account
+        const EDAMAM_APP_ID = "YOUR_APP_ID"; 
+        const EDAMAM_APP_KEY = "YOUR_APP_KEY"; 
+
+        // --- 2. Diet Planner Logic ---
+        document.getElementById('dietForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Get user input
+            const gender = document.getElementById('gender').value;
+            const age = parseFloat(document.getElementById('age').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const activity = parseFloat(document.getElementById('activity').value);
+            const goal = document.getElementById('goal').value;
+            const preference = document.getElementById('preference').value;
+
+            // Save basic data to localStorage for future tracking (Optional Feature)
+            localStorage.setItem('dietProfile', JSON.stringify({ gender, age, height, weight, activity, goal, preference }));
+
+            // Step 1: Calculate BMR using Mifflin-St Jeor Equation
+            let bmr = 0;
+            if (gender === 'male') {
+                bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+            } else {
+                bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+            }
+
+            // Step 2: Calculate TDEE (Total Daily Energy Expenditure)
+            let tdee = bmr * activity;
+
+            // Step 3: Adjust for Goals
+            let dailyCalories = tdee;
+            if (goal === 'lose') {
+                dailyCalories -= 500; // 500 kcal deficit for safe weight loss
+            } else if (goal === 'gain') {
+                dailyCalories += 500; // 500 kcal surplus
+            }
+
+            // Ensure calories don't drop dangerously low
+            if (gender === 'male' && dailyCalories < 1500) dailyCalories = 1500;
+            if (gender === 'female' && dailyCalories < 1200) dailyCalories = 1200;
+
+            // Step 4: Calculate Macros 
+            // Standard Split: 30% Protein, 40% Carbs, 30% Fats
+            // Protein: 4 kcal/g, Carbs: 4 kcal/g, Fat: 9 kcal/g
+            let proPct = 0.30, carbPct = 0.40, fatPct = 0.30;
+            
+            if (goal === 'lose') {
+                proPct = 0.35; carbPct = 0.35; fatPct = 0.30; // Higher protein for muscle preservation
+            } else if (goal === 'gain') {
+                proPct = 0.25; carbPct = 0.50; fatPct = 0.25; // Higher carbs for energy
+            }
+
+            const protein = Math.round((dailyCalories * proPct) / 4);
+            const carbs = Math.round((dailyCalories * carbPct) / 4);
+            const fats = Math.round((dailyCalories * fatPct) / 9);
+
+            // Step 5: Water intake (approx 35ml per kg of body weight)
+            let waterMl = weight * 35;
+            // Additional water for activity (approx 500ml for moderate, 1000ml for active)
+            if (activity >= 1.55) waterMl += 500;
+            if (activity >= 1.725) waterMl += 500;
+            const waterLiters = (waterMl / 1000).toFixed(1);
+
+            // --- Update UI ---
+            document.getElementById('welcomeState').style.display = 'none';
+            document.getElementById('resultsState').style.display = 'block';
+
+            // Animate numbers
+            animateValue('resCal', 0, Math.round(dailyCalories), 1000);
+            animateValue('resPro', 0, protein, 1000);
+            animateValue('resCarb', 0, carbs, 1000);
+            animateValue('resFat', 0, fats, 1000);
+            document.getElementById('resWater').innerText = waterLiters;
+
+            // Generate Suggestion Plan based on preference
+            generateDietPlan(goal, preference);
+            
+            // Scroll to results
+            document.getElementById('resultsState').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Function to animate number counters
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerText = Math.floor(progress * (end - start) + start).toLocaleString();
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Generate static but preference-based diet plan
+        function generateDietPlan(goal, preference) {
+            const list = document.getElementById('dietSuggestionList');
+            list.innerHTML = ''; // clear
+
+            let items = [];
+
+            if (preference === 'vegetarian') {
+                items = [
+                    '<i class="fa-solid fa-mug-hot"></i> <strong>Breakfast:</strong> Oatmeal with fruits, chia seeds, and protein powder / Paneer bhurji.',
+                    '<i class="fa-solid fa-apple-whole"></i> <strong>Snack:</strong> Handful of almonds & walnuts with an apple.',
+                    '<i class="fa-solid fa-bowl-rice"></i> <strong>Lunch:</strong> Lentil soup (Dal), Quinoa/Brown Rice, and mixed vegetable curry.',
+                    '<i class="fa-solid fa-cookie"></i> <strong>Snack:</strong> Greek yogurt / Roasted chana.',
+                    '<i class="fa-solid fa-plate-wheat"></i> <strong>Dinner:</strong> Grilled tofu or paneer, large green salad, and sweet potato.'
+                ];
+            } else {
+                // Non-vegetarian
+                items = [
+                    '<i class="fa-solid fa-egg"></i> <strong>Breakfast:</strong> 3 Whole eggs scrambled with spinach and whole wheat toast.',
+                    '<i class="fa-solid fa-apple-whole"></i> <strong>Snack:</strong> Protein shake and a banana.',
+                    '<i class="fa-solid fa-drumstick-bite"></i> <strong>Lunch:</strong> Grilled chicken breast, quinoa, and steamed broccoli.',
+                    '<i class="fa-solid fa-cookie"></i> <strong>Snack:</strong> Greek yogurt or boiled eggs.',
+                    '<i class="fa-solid fa-fish"></i> <strong>Dinner:</strong> Baked salmon or fish curry, large green salad with olive oil.'
+                ];
+            }
+
+            // Append disclaimer based on goal
+            let tip = '';
+            if (goal === 'lose') tip = '<i class="fa-solid fa-circle-exclamation color-warning"></i> <em>Tip: Focus on portion control and stay in your calorie deficit.</em>';
+            if (goal === 'gain') tip = '<i class="fa-solid fa-circle-exclamation color-success"></i> <em>Tip: Eat slightly larger portions to ensure calorie surplus.</em>';
+            
+            if (tip) items.push(tip);
+
+            items.forEach(htmlContent => {
+                let li = document.createElement('li');
+                li.innerHTML = htmlContent;
+                list.appendChild(li);
+            });
+        }
+
+        // --- 3. Edamam API Integration ---
+        document.getElementById('analyzeBtn').addEventListener('click', async function() {
+            const rawText = document.getElementById('mealInput').value.trim();
+            const errorDiv = document.getElementById('apiError');
+            const resultDiv = document.getElementById('apiResult');
+            const spinner = document.getElementById('apiSpinner');
+
+            // Reset UI
+            errorDiv.style.display = 'none';
+            resultDiv.classList.remove('active');
+            
+            if (!rawText) {
+                errorDiv.innerText = "Please enter some food ingredients.";
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // Split input into array by lines or commas
+            const ingredientsArray = rawText.split(/[\n,]+/).map(item => item.trim()).filter(item => item.length > 0);
+
+            // Payload for Edamam /api/nutrition-details
+            const payload = {
+                title: "Meal Analysis",
+                ingr: ingredientsArray
+            };
+
+            // Show Spinner
+            spinner.style.display = 'flex';
+
+            try {
+                // Validate if Keys are set
+                if (EDAMAM_APP_ID === "YOUR_APP_ID") {
+                    throw new Error("API Keys are missing. Please configure EDAMAM_APP_ID and EDAMAM_APP_KEY in the code for actual API operation.");
+                }
+
+                const response = await fetch(`https://api.edamam.com/api/nutrition-details?app_id=${EDAMAM_APP_ID}&app_key=${EDAMAM_APP_KEY}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) throw new Error("Unauthorized. Check your Edamam API keys.");
+                    if (response.status === 404) throw new Error("API endpoint not found.");
+                    if (response.status === 555) throw new Error("Ingredient cannot be parsed. Try being more specific (e.g. '1 large apple').");
+                    throw new Error("Failed to fetch nutrition data. " + response.statusText);
+                }
+
+                const data = await response.json();
+                
+                // Process and Display Data
+                const calories = Math.round(data.calories);
+                const protein = Math.round(data.totalNutrients.PROCNT ? data.totalNutrients.PROCNT.quantity : 0);
+                const carbs = Math.round(data.totalNutrients.CHOCDF ? data.totalNutrients.CHOCDF.quantity : 0);
+                const fat = Math.round(data.totalNutrients.FAT ? data.totalNutrients.FAT.quantity : 0);
+
+                document.getElementById('apiCal').innerText = calories;
+                document.getElementById('apiPro').innerText = protein;
+                document.getElementById('apiCarb').innerText = carbs;
+                document.getElementById('apiFat').innerText = fat;
+
+                // Hide spinner, show result
+                spinner.style.display = 'none';
+                resultDiv.classList.add('active');
+
+            } catch (error) {
+                spinner.style.display = 'none';
+                errorDiv.innerText = error.message;
+                errorDiv.style.display = 'block';
+            }
+        });
+
+        // Initialize from LocalStorage if available
+        window.addEventListener('load', () => {
+            const savedProfile = localStorage.getItem('dietProfile');
+            if (savedProfile) {
+                try {
+                    const profile = JSON.parse(savedProfile);
+                    document.getElementById('gender').value = profile.gender;
+                    document.getElementById('age').value = profile.age;
+                    document.getElementById('height').value = profile.height;
+                    document.getElementById('weight').value = profile.weight;
+                    document.getElementById('activity').value = profile.activity;
+                    document.getElementById('goal').value = profile.goal;
+                    document.getElementById('preference').value = profile.preference;
+                } catch(e) {
+                    console.error("Local storage error");
+                }
+            }
+        });
+
+        // --- 4. Camera & Clarifai Integration ---
+        const openCameraBtn = document.getElementById('openCameraBtn');
+        const closeCameraBtn = document.getElementById('closeCameraBtn');
+        const cameraModal = document.getElementById('cameraModal');
+        const videoElement = document.getElementById('videoElement');
+        const canvasElement = document.getElementById('canvasElement');
+        const captureBtn = document.getElementById('captureBtn');
+        const camStatus = document.getElementById('camStatus');
+        
+        let localStream = null;
+
+        // Open Camera
+        openCameraBtn.addEventListener('click', async () => {
+            cameraModal.classList.add('active');
+            camStatus.innerText = "Accessing camera...";
+
+            // Browser security blocks camera access on local file:// paths
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                camStatus.innerHTML = "<span style='color: var(--danger);'><b>Camera Blocked!</b></span> Browsers restrict camera access on standard local files for security.<br>You must run this file through a local server (like <code>http://localhost</code>).";
+                return;
+            }
+
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                videoElement.srcObject = localStream;
+                camStatus.innerText = "Camera ready. Point at food and click identify.";
+            } catch (err) {
+                camStatus.innerText = "Camera access denied or unavailable. Please check permissions.";
+                console.error("Camera Error:", err);
+            }
+        });
+
+        // Close Camera
+        const closeCamera = () => {
+            cameraModal.classList.remove('active');
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            camStatus.innerText = "";
+        };
+        closeCameraBtn.addEventListener('click', closeCamera);
+
+        // Capture & Send to Clarifai
+        captureBtn.addEventListener('click', async () => {
+            if (!localStream) {
+                camStatus.innerText = "Camera not active!";
+                return;
+            }
+
+            camStatus.innerText = "Capturing image...";
+            
+            // Draw video frame to hidden canvas
+            const ctx = canvasElement.getContext('2d');
+            canvasElement.width = 500;
+            canvasElement.height = (500 / videoElement.videoWidth) * videoElement.videoHeight;
+            ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+            
+            // Get raw base64 data
+            const base64Image = canvasElement.toDataURL('image/jpeg', 0.8).split(',')[1];
+            
+            try {
+                camStatus.innerText = "Analyzing with Clarifai...";
+                captureBtn.disabled = true;
+
+                // Send request using user's general-image-recognition cURL configuration
+                const response = await fetch("https://api.clarifai.com/v2/users/clarifai/apps/main/models/general-image-recognition/versions/aa7f35c01e0642fda5cf400f543e7c40/outputs", {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Key b4501d78e82146189a76fe8df8f64ae3',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        inputs: [
+                            { data: { image: { base64: base64Image } } }
+                        ]
+                    })
+                });
+
+                if (!response.ok) throw new Error("Failed to reach Clarifai API.");
+                
+                const data = await response.json();
+                
+                if (data.outputs && data.outputs[0].data.concepts && data.outputs[0].data.concepts.length > 0) {
+                    const concepts = data.outputs[0].data.concepts;
+                    
+                    // Filter out overly generic tags to get the actual food name
+                    let topFood = "unknown item";
+                    for(let i = 0; i < concepts.length; i++) {
+                        let name = concepts[i].name.toLowerCase();
+                        if(!['food', 'no person', 'plate', 'dish', 'meal', 'delicious', 'nutrition', 'diet', 'still life'].includes(name)) {
+                            topFood = name;
+                            break;
+                        }
+                    }
+                    
+                    camStatus.innerText = `Detected: ${topFood}. Sending to analyzer...`;
+                    
+                    setTimeout(() => {
+                        closeCamera();
+                        
+                        // Populate Meal Analyzer Input
+                        document.getElementById('mealInput').value = `1 serving of ${topFood}`;
+                        
+                        // If Edamam keys are set, trigger the test
+                        if(EDAMAM_APP_ID !== "YOUR_APP_ID") {
+                            document.getElementById('analyzeBtn').click();
+                        } else {
+                            document.getElementById('apiError').innerText = "Clarifai AI matched successfully! But Edamam API keys are still needed to trace its nutrition.";
+                            document.getElementById('apiError').style.display = 'block';
+                        }
+                        
+                        // Scroll user directly to the Analyzer
+                        document.getElementById('analyzer').scrollIntoView({ behavior: 'smooth' });
+                    }, 1000);
+                } else {
+                    camStatus.innerText = "No distinct object detected. Try again.";
+                }
+
+            } catch (error) {
+                console.error(error);
+                camStatus.innerText = "Error analyzing image via Clarifai.";
+            } finally {
+                captureBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

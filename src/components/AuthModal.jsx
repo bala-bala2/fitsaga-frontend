@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuthModal } from '../context/AuthContext';
 import { X, Mail, Lock, User } from 'lucide-react';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
+console.log('API URL:', API_URL); // 👈 add this
 const AuthModal = () => {
   const { isOpen, closeModal, view, setView, login } = useAuthModal();
   const [name, setName] = useState('');
